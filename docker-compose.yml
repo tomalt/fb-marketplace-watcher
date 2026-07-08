@@ -4,5 +4,5 @@ services:
     container_name: fb-marketplace-watcher
     restart: unless-stopped
     volumes:
-      - ./config.yml:/app/config.yml:ro
-      - ./data:/app/data
+      - /srv/docker/fb-marketplace-watcher/config.yml:/app/config.yml:ro
+      - /srv/docker/fb-marketplace-watcher/data:/app/data
