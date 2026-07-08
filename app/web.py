@@ -77,4 +77,4 @@ def index():
 
 
 def run_web():
-    app.run(host="0.0.0.0", port=8099, debuf=False, use_reloader=False)
+    app.run(host="0.0.0.0", port=8099, debug=False, use_reloader=False)
