@@ -3,6 +3,8 @@ services:
     build: .
     container_name: fb-marketplace-watcher
     restart: unless-stopped
+    ports:
+      - "8099:8099"
     volumes:
       - /srv/docker/fb-marketplace-watcher/config.yml:/app/config.yml:ro
       - /srv/docker/fb-marketplace-watcher/data:/app/data

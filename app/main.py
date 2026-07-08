@@ -3,6 +3,7 @@ import logging
 import re
 import time
 from pathlib import Path
+from web import run_web
 
 import requests
 import yaml
@@ -11,6 +12,11 @@ from playwright.sync_api import sync_playwright
 CONFIG_PATH = Path("/app/config.yml")
 DATA_DIR = Path("/app/data")
 SEEN_PATH = DATA_DIR / "seen.json"
+
+from threading import Thread
+from datetime import datetime, timedelta
+
+STATUS_PATH = DATA_DIR / "status.json"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -40,6 +46,11 @@ def save_seen(seen):
     SEEN_PATH.write_text(json.dumps(seen, indent=2, sort_keys=True), encoding="utf-8")
     log.info("Saved seen IDs")
 
+def save_status(status):
+    STATUS_PATH.write_text(
+        json.dumps(status, indent=2),
+        encoding="utf-8",
+    )
 
 def send_telegram(bot_token, chat_id, text):
     log.info("Sending Telegram notification")
@@ -80,6 +91,11 @@ def scan_once():
     config = load_config()
     seen, first_run = load_seen()
 
+    status = {
+        "last_scan": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    "next_scan": "",
+    "searches": {},
+    }
     bot_token = config["telegram"]["bot_token"]
     chat_id = config["telegram"]["chat_id"]
 
@@ -109,7 +125,11 @@ def scan_once():
             new_ids = [item_id for item_id in ids if item_id not in old_ids]
 
             log.info("[%s] Found %d listings; %d new", name, len(ids), len(new_ids))
-
+            status["searches"][name] = {
+                "last_found": len(ids),
+                "last_new": len(new_ids),
+                "last_checked": datetime.now().strftime("%H:%M:%S"),
+            }
             notify_first_run = search.get("notify_first_run", False)
 
             if first_run and not notify_first_run:
@@ -126,6 +146,12 @@ def scan_once():
         browser.close()
         log.info("Chromium closed")
 
+    status["next_scan"] = (
+        datetime.now() + timedelta(minutes=config["watcher"]["interval_minutes"])
+    ).strftime("%Y-%m-%d %H:%M:%S")
+
+    save_status(status)
+
     save_seen(seen)
 
 
@@ -134,7 +160,7 @@ def main():
     interval = config.get("watcher", {}).get("interval_minutes", 360)
 
     log.info("Watcher starting; interval is %d minutes", interval)
-
+    Thread(target=run_web, daemon=True).start()
     while True:
         try:
             scan_once()
