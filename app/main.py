@@ -9,7 +9,7 @@ from playwright.sync_api import sync_playwright
 
 from notifier import notify
 from scanner import fetch_ids
-from storage import load_seen, save_seen, save_status
+from storage import load_seen, save_seen, save_status, init_searches_from_config, load_searches
 from web import run_web
 
 CONFIG_PATH = Path("/app/config.yml")
@@ -33,7 +33,8 @@ def scan_once():
     seen, first_run = load_seen()
 
     interval = config.get("watcher", {}).get("interval_minutes", 360)
-    searches = config.get("searches", [])
+    init_searches_from_config(config.get("searches", []))
+    searches = load_searches()
 
     status = {
         "last_scan": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
