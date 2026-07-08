@@ -1,0 +1,36 @@
+telegram:
+  bot_token: "YOUR_BOT_TOKEN"
+  chat_id: "YOUR_CHAT_ID"
+
+email:
+  smtp_server: "smtp.gmail.com"
+  smtp_port: 587
+  smtp_username: "YOUR@EMAIL.COM"
+  smtp_password: "YOUR_APP_PASSWORD"
+  from: "Marketplace Watcher <YOUR@EMAIL.COM>"
+
+watcher:
+  interval_minutes: 360
+
+searches:
+  - name: "Austen Jigsaw Puzzle"
+    url: "https://www.facebook.com/marketplace/brisbane/search/?query=jigsaw%20austen"
+    notify_first_run: false
+    notify:
+      telegram: false
+      email:
+        - []
+
+  - name: "Captain - Retro Oscilloscope"
+    url: "https://www.facebook.com/marketplace/brisbane/search?query=oscilloscope"
+    notify_first_run: false
+    notify:
+      telegram: true
+      email: []
+
+  - name: "FC Holden"
+    url: "https://www.facebook.com/marketplace/brisbane/search?query=FC%20Holden"
+    notify_first_run: false
+    notify:
+      telegram: true
+      email: []

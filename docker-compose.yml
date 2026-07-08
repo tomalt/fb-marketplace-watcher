@@ -1,0 +1,8 @@
+services:
+  fb-marketplace-watcher:
+    build: .
+    container_name: fb-marketplace-watcher
+    restart: unless-stopped
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+      - ./data:/app/data
